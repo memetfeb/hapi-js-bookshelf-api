@@ -1,6 +1,9 @@
-const { nanoid } = require('nanoid');
+const {
+    nanoid
+} = require('nanoid');
 const books = require('./books');
 
+//Kriteria 1 : API dapat menyimpan buku
 const addBookHandler = (request, h) => {
     const {
         name,
@@ -18,7 +21,7 @@ const addBookHandler = (request, h) => {
     const insertedAt = new Date().toISOString();
     const updatedAt = insertedAt;
 
-    if(!name){
+    if (!name) {
         const response = h.response({
             status: 'fail',
             message: 'Gagal menambahkan buku. Mohon isi nama buku',
@@ -27,7 +30,7 @@ const addBookHandler = (request, h) => {
         return response;
     }
 
-    if(readPage > pageCount){
+    if (readPage > pageCount) {
         const response = h.response({
             status: 'fail',
             message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount',
@@ -74,7 +77,132 @@ const addBookHandler = (request, h) => {
 
     return response;
 };
+//END Kriteria 1 : API dapat menyimpan buku
+
+// Kriteria 2 : API dapat menampilkan seluruh buku
+const getAllBooksHandler = (request, h) => {
+    const response = h.response({
+        status: "success",
+        data: {
+          books: books.map((book) => ({
+            id: book.id,
+            name: book.name,
+            publisher: book.publisher,
+          })),
+        },
+      });
+      response.code(200);
+      return response;
+};
+//END Kriteria 2 : API dapat menampilkan seluruh buku
+
+//Kriteria 3 : API dapat menampilkan detail buku
+const getBookByIdHandler = (request, h) => {
+    const { bookId } = request.params;
+  
+    const book = books.filter((n) => n.id === bookId)[0];
+    if (book !== undefined) {
+        const response = h.response({
+        status: 'success',
+        data: {
+          book,
+            },
+        });
+        response.code(200);
+        return response;
+    }
+    const response = h.response({
+      status: 'fail',
+      message: 'Buku tidak ditemukan',
+    });
+    response.code(404);
+    return response;
+  };
+//END Kriteria 3 : API dapat menampilkan detail buku
+
+//Kriteria 4 : API dapat mengubah data buku
+const editBookByIdHandler = (request, h) => {
+    const { bookId } = request.params;
+  
+    const { name, year, author, summary, publisher, pageCount, readPage, reading } = request.payload;
+    if (!name) {
+        const response = h.response({
+            status: 'fail',
+            message: 'Gagal memperbarui buku. Mohon isi nama buku',
+        });
+        response.code(400);
+        return response;
+    }
+    if (readPage > pageCount) {
+        const response = h.response({
+            status: 'fail',
+            message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
+        });
+        response.code(400);
+        return response;
+    }
+    
+    const updatedAt = new Date().toISOString();
+    const index = books.findIndex((book) => book.id === bookId);
+  
+    if (index !== -1) {
+      books[index] = {
+        ...books[index],
+        name,
+        year,
+        author,
+        summary,
+        publisher,
+        pageCount,
+        readPage,
+        reading,
+        updatedAt,
+      };
+      const response = h.response({
+        status: 'success',
+        message: 'Buku berhasil diperbarui',
+      });
+      response.code(200);
+      return response;
+    }
+    const response = h.response({
+      status: 'fail',
+      message: 'Gagal memperbarui buku. Id tidak ditemukan',
+    });
+    response.code(404);
+    return response;
+  };
+//END Kriteria 4 : API dapat mengubah data buku
+
+//Kriteria 5 : API dapat menghapus buku
+const deleteBookByIdHandler = (request, h) => {
+    const { bookId } = request.params;
+  
+    const index = books.findIndex((book) => book.id === bookId);
+  
+    if (index !== -1) {
+      books.splice(index, 1);
+      const response = h.response({
+        status: 'success',
+        message: 'Buku berhasil dihapus',
+      });
+      response.code(200);
+      return response;
+    }
+  
+    const response = h.response({
+      status: 'fail',
+      message: 'Buku gagal dihapus. Id tidak ditemukan',
+    });
+    response.code(404);
+    return response;
+  };
+//END Kriteria 5 : API dapat menghapus buku
 
 module.exports = {
     addBookHandler,
+    getAllBooksHandler,
+    getBookByIdHandler,
+    editBookByIdHandler,
+    deleteBookByIdHandler,
 };
