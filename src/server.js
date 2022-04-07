@@ -6,7 +6,7 @@ const init = async () => {
     port: 5000,
     host: process.env.NODE_ENV !== 'production' ? 'localhost' : '0.0.0.0',
     routes: {
-      //Menerapkan CORS pada seluruh resource yang ada.
+      // Menerapkan CORS pada seluruh resource yang ada.
       cors: {
         origin: ['*'],
       },
