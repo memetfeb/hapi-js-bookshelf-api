@@ -81,6 +81,61 @@ const addBookHandler = (request, h) => {
 
 // Kriteria 2 : API dapat menampilkan seluruh buku
 const getAllBooksHandler = (request, h) => {
+    const { name, reading, finished } = request.query;
+
+    //Menampilkan buku dengan query ?name
+    if(name){
+        //non-case sensitive  (tidak peduli besar dan kecil huruf)
+        const book = books.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
+        const response = h.response({
+            status: "success",
+            data: {
+              books: book.map((book) => ({
+                id: book.id,
+                name: book.name,
+                publisher: book.publisher,
+              })),
+            },
+          });
+          response.code(200);
+          return response;
+    }
+
+    //Menampilkan buku dengan query ?reading
+    if(reading){
+        const book = books.filter((book) => Number(book.reading) === Number(reading));
+        const response = h.response({
+            status: "success",
+            data: {
+              books: book.map((book) => ({
+                id: book.id,
+                name: book.name,
+                publisher: book.publisher,
+              })),
+            },
+          });
+          response.code(200);
+          return response;
+    }
+
+    //Menampilkan buku dengan query ?finished
+    if(finished){
+        const book = books.filter((book) => Number(book.finished) === Number(finished));
+        const response = h.response({
+            status: "success",
+            data: {
+              books: book.map((book) => ({
+                id: book.id,
+                name: book.name,
+                publisher: book.publisher,
+              })),
+            },
+          });
+          response.code(200);
+          return response;
+    }
+    
+    //Menampilkan seluruh buku tanpa query
     const response = h.response({
         status: "success",
         data: {
